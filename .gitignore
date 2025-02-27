@@ -1,0 +1,45 @@
+# Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Project assembly
+/build/
+.gradle/
+captures/
+local.properties
+*.log
+
+# Caches and temporary files
+*.swp
+*.swo
+*.DS_Store
+*.class
+*.jar
+*.war
+*.ear
+*.pyc
+*.pyo
+*.map
+
+# Key and confidential files
+*.keystore
+*.jks
+*.bak
+.env
+*.crt
+*.pem
+*.p12
+*.key
+google-services.json
+
+# Build APK/AAB
+*.apk
+*.aab
+
+# Firebase Crashlytics
+crashlytics-build.properties
+
+# MacOS
+.DS_Store
