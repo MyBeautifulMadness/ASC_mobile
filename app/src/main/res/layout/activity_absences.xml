@@ -16,7 +16,7 @@
             android:id="@+id/profilePlaceholder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Здесь будет профиль"
+            android:text="Здесь будут пропуски"
             android:textSize="24sp"
             android:textStyle="bold"
             android:gravity="center"/>
@@ -32,4 +32,5 @@
         app:itemTextColor="@color/navigation_colors"
         app:labelVisibilityMode="labeled"
         app:itemHorizontalTranslationEnabled="false"/>
+
 </LinearLayout>
