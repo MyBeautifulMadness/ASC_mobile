@@ -4,6 +4,7 @@ import com.example.asc_mobile.model.LoginRequest
 import com.example.asc_mobile.model.LoginResponse
 import com.example.asc_mobile.model.SkippingRequestResponse
 import com.example.asc_mobile.model.CreateSkippingRequest
+import com.example.asc_mobile.model.UserProfileResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -35,5 +36,7 @@ interface AuthApiService {
         @Header("Authorization") token: String,
         @Body request: CreateSkippingRequest
     ): Call<Void>
+    @GET("api/account/profile")
+    fun getProfile(@Header("Authorization") authHeader: String): Call<UserProfileResponse>
 }
 
