@@ -2,6 +2,8 @@ package com.example.asc_mobile.api
 
 import com.example.asc_mobile.model.LoginRequest
 import com.example.asc_mobile.model.LoginResponse
+import com.example.asc_mobile.model.SkippingRequestResponse
+import com.example.asc_mobile.model.CreateSkippingRequest
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
@@ -16,5 +18,22 @@ interface AuthApiService {
     fun checkToken(@Query("token") token: String): Call<Void>
     @POST("api/account/logout")
     fun logout(@Header("Authorization") token: String): Call<Void>
+    @GET("api/skipping-requests/skippingRequestList")
+    fun getSkippingRequests(
+        @Header("Authorization") authHeader: String,
+        @Query("studentId") studentId: String? = null,
+        @Query("startDate") startDate: String? = null,
+        @Query("endDate") endDate: String? = null,
+        @Query("sortSetting") sortSetting: String? = null,
+        @Query("lessonNumber") lessonNumber: Int? = null,
+        @Query("isAppruved") isApproved: Boolean? = null,
+        @Query("page") page: Int = 1,
+        @Query("size") size: Int = 20
+    ): Call<SkippingRequestResponse>
+    @POST("api/skipping-requests/create")
+    fun createSkippingRequest(
+        @Header("Authorization") token: String,
+        @Body request: CreateSkippingRequest
+    ): Call<Void>
 }
 
