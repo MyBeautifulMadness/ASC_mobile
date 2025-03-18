@@ -10,12 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Новая дата начала"
-        android:inputType="date" />
+        android:focusable="false"
+        android:clickable="true"
+        android:inputType="none"/>
 
     <EditText
         android:id="@+id/newEndDateInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Новая дата окончания"
-        android:inputType="date" />
+        android:focusable="false"
+        android:clickable="true"
+        android:inputType="none"/>
 </LinearLayout>

@@ -36,7 +36,7 @@ interface AuthApiService {
         @Query("lessonNumber") lessonNumber: Int? = null,
         @Query("isAppruved") isApproved: Boolean? = null,
         @Query("page") page: Int = 1,
-        @Query("size") size: Int = 20
+        @Query("size") size: Int = 5
     ): Call<SkippingRequestResponse>
     @POST("api/skipping-requests/create")
     fun createSkippingRequest(

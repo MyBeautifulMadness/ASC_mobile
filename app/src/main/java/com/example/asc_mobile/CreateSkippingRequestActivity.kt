@@ -60,8 +60,9 @@ class CreateSkippingRequestActivity : AppCompatActivity() {
         val reason = reasonInput.text.toString()
         val lessons = checkBoxes.filter { it.isChecked }.map { it.text.toString().toInt() }
 
-        if (startDate.isEmpty() || endDate.isEmpty() || reason.isEmpty() || lessons.isEmpty()) {
-            Toast.makeText(this, "Заполните все поля", Toast.LENGTH_SHORT).show()
+
+        if (startDate.isEmpty() || endDate.isEmpty() || reason.isEmpty()) {
+            Toast.makeText(this, "Заполните обязательные поля", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -69,6 +70,11 @@ class CreateSkippingRequestActivity : AppCompatActivity() {
         val token = sharedPref.getString("token", null)
         if (token == null) {
             Toast.makeText(this, "Ошибка авторизации", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (lessons.isNotEmpty() && startDate != endDate) {
+            Toast.makeText(this, "При выборе пар пропуск оформляется только на один день", Toast.LENGTH_SHORT).show()
             return
         }
 

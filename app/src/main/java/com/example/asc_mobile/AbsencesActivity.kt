@@ -10,6 +10,8 @@ import android.os.Bundle
 import android.widget.Button
 import android.util.Log
 import android.widget.Toast
+import android.view.View
+import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.appcompat.app.AppCompatActivity
@@ -32,10 +34,16 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import java.util.Calendar
+import android.app.DatePickerDialog
 
 class AbsencesActivity : BaseActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: SkippingRequestsAdapter
+
+    private lateinit var prevPageButton: Button
+    private lateinit var nextPageButton: Button
+    private lateinit var pageIndicator: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +56,22 @@ class AbsencesActivity : BaseActivity() {
             showOptionsDialog(request)
         }
         recyclerView.adapter = adapter
+
+        prevPageButton = findViewById(R.id.prevPageButton)
+        nextPageButton = findViewById(R.id.nextPageButton)
+        pageIndicator = findViewById(R.id.pageIndicator)
+
+        prevPageButton.setOnClickListener {
+            if (currentPage > 1) {
+                currentPage--
+                applyFilters("", "", "", "")
+            }
+        }
+
+        nextPageButton.setOnClickListener {
+            currentPage++
+            applyFilters("", "", "", "")
+        }
 
         loadSkippingRequests()
 
@@ -82,6 +106,9 @@ class AbsencesActivity : BaseActivity() {
                 if (response.isSuccessful) {
                     val skippingRequests = response.body()?.list ?: emptyList()
                     adapter.updateData(skippingRequests)
+
+                    val totalPages = response.body()?.totalPagesCount ?: 1
+                    updatePaginationUI(totalPages)
                 } else {
                     Toast.makeText(this@AbsencesActivity, "Ошибка загрузки", Toast.LENGTH_SHORT).show()
                 }
@@ -95,12 +122,18 @@ class AbsencesActivity : BaseActivity() {
 
     private fun showFiltersDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_filters, null)
+        val startDateInput = dialogView.findViewById<EditText>(R.id.startDateInput)
+        val endDateInput = dialogView.findViewById<EditText>(R.id.endDateInput)
+
+        startDateInput.setOnClickListener { showDatePicker(startDateInput) }
+        endDateInput.setOnClickListener { showDatePicker(endDateInput) }
+
         val dialog = AlertDialog.Builder(this)
             .setTitle("Выберите фильтры")
             .setView(dialogView)
             .setPositiveButton("Применить") { _, _ ->
-                val startDate = dialogView.findViewById<EditText>(R.id.startDateInput).text.toString()
-                val endDate = dialogView.findViewById<EditText>(R.id.endDateInput).text.toString()
+                val startDate = startDateInput.text.toString()
+                val endDate = endDateInput.text.toString()
                 val isApproved = dialogView.findViewById<Spinner>(R.id.isApprovedSpinner).selectedItem.toString()
                 val sortSetting = dialogView.findViewById<Spinner>(R.id.sortSettingSpinner).selectedItem.toString()
                 applyFilters(startDate, endDate, isApproved, sortSetting)
@@ -109,6 +142,9 @@ class AbsencesActivity : BaseActivity() {
             .create()
         dialog.show()
     }
+
+    private var currentPage = 1
+    private val pageSize = 5
 
     private fun applyFilters(startDate: String, endDate: String, isApproved: String, sortSetting: String) {
         val apiService = RetrofitClient.instance.create(AuthApiService::class.java)
@@ -131,13 +167,15 @@ class AbsencesActivity : BaseActivity() {
             endDate = endDate.ifEmpty { null },
             isApproved = isApprovedValue,
             sortSetting = if (sortSetting == "--") null else sortSetting,
-            page = 1,
-            size = 20
+            page = currentPage,
+            size = pageSize
         ).enqueue(object : Callback<SkippingRequestResponse> {
             override fun onResponse(call: Call<SkippingRequestResponse>, response: Response<SkippingRequestResponse>) {
                 if (response.isSuccessful) {
                     val data = response.body()?.list ?: emptyList()
                     adapter.updateData(data)
+                    val totalPages = response.body()?.totalPagesCount ?: 1
+                    updatePaginationUI(totalPages)
                 } else {
                     Toast.makeText(this@AbsencesActivity, "Ошибка загрузки", Toast.LENGTH_SHORT).show()
                 }
@@ -151,6 +189,10 @@ class AbsencesActivity : BaseActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == REQUEST_CODE_CREATE && resultCode == RESULT_OK) {
+            loadSkippingRequests()
+        }
 
         if (requestCode == REQUEST_CODE_PICK_FILES && resultCode == RESULT_OK) {
             val fileUris = mutableListOf<Uri>()
@@ -338,6 +380,9 @@ class AbsencesActivity : BaseActivity() {
         val startDateInput = dialogView.findViewById<EditText>(R.id.newStartDateInput)
         val endDateInput = dialogView.findViewById<EditText>(R.id.newEndDateInput)
 
+        startDateInput.setOnClickListener { showDatePicker(startDateInput) }
+        endDateInput.setOnClickListener { showDatePicker(endDateInput) }
+
         AlertDialog.Builder(this)
             .setTitle("Продлить пропуск")
             .setView(dialogView)
@@ -384,5 +429,25 @@ class AbsencesActivity : BaseActivity() {
                 Toast.makeText(this@AbsencesActivity, "Ошибка сети: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun updatePaginationUI(totalPages: Int) {
+        pageIndicator.text = "Страница $currentPage"
+
+        prevPageButton.isEnabled = currentPage > 1
+        nextPageButton.isEnabled = currentPage < totalPages
+
+        findViewById<LinearLayout>(R.id.paginationLayout).visibility =
+            if (totalPages > 1) View.VISIBLE else View.GONE
+    }
+
+    private fun showDatePicker(editText: EditText) {
+        val calendar = Calendar.getInstance()
+        val datePickerDialog = DatePickerDialog(this, { _, year, month, day ->
+            val selectedDate = String.format("%04d-%02d-%02d", year, month + 1, day)
+            editText.setText(selectedDate)
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+
+        datePickerDialog.show()
     }
 }

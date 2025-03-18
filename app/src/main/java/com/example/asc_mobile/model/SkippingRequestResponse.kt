@@ -2,7 +2,8 @@ package com.example.asc_mobile.model
 
 data class SkippingRequestResponse(
     val totalCount: Int,
-    val list: List<SkippingRequest>
+    val list: List<SkippingRequest>,
+    val totalPagesCount: Int
 )
 
 data class SkippingRequest(

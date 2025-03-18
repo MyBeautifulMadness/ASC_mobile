@@ -48,8 +48,18 @@ class SkippingRequestsAdapter(
 
         holder.confirmations.text = "Подтверждающие документы: $documentsText"
 
-        holder.itemView.setOnClickListener {
-            onItemClick(request)
+        if (request.status == "REJECTED") {
+            holder.itemView.isClickable = false
+            holder.itemView.isFocusable = false
+            holder.itemView.alpha = 0.5f
+        } else {
+            holder.itemView.isClickable = true
+            holder.itemView.isFocusable = true
+            holder.itemView.alpha = 1.0f
+
+            holder.itemView.setOnClickListener {
+                onItemClick(request)
+            }
         }
     }
 
