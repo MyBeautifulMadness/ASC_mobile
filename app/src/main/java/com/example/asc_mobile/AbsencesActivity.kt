@@ -102,14 +102,15 @@ class AbsencesActivity : BaseActivity() {
                 val startDate = dialogView.findViewById<EditText>(R.id.startDateInput).text.toString()
                 val endDate = dialogView.findViewById<EditText>(R.id.endDateInput).text.toString()
                 val isApproved = dialogView.findViewById<Spinner>(R.id.isApprovedSpinner).selectedItem.toString()
-                applyFilters(startDate, endDate, isApproved)
+                val sortSetting = dialogView.findViewById<Spinner>(R.id.sortSettingSpinner).selectedItem.toString()
+                applyFilters(startDate, endDate, isApproved, sortSetting)
             }
             .setNegativeButton("Отмена", null)
             .create()
         dialog.show()
     }
 
-    private fun applyFilters(startDate: String, endDate: String, isApproved: String) {
+    private fun applyFilters(startDate: String, endDate: String, isApproved: String, sortSetting: String) {
         val apiService = RetrofitClient.instance.create(AuthApiService::class.java)
         val token = getSharedPreferences("auth_prefs", MODE_PRIVATE).getString("token", null)
 
@@ -129,6 +130,7 @@ class AbsencesActivity : BaseActivity() {
             startDate = startDate.ifEmpty { null },
             endDate = endDate.ifEmpty { null },
             isApproved = isApprovedValue,
+            sortSetting = if (sortSetting == "--") null else sortSetting,
             page = 1,
             size = 20
         ).enqueue(object : Callback<SkippingRequestResponse> {
