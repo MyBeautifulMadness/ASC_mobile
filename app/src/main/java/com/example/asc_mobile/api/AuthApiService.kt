@@ -9,8 +9,15 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Query
 import retrofit2.http.Header
+import retrofit2.http.Multipart
+import retrofit2.http.Part
+import retrofit2.http.Streaming
+import okhttp3.ResponseBody
+import okhttp3.RequestBody
+import okhttp3.MultipartBody
 
 interface AuthApiService {
     @POST("api/account/login")
@@ -38,5 +45,24 @@ interface AuthApiService {
     ): Call<Void>
     @GET("api/account/profile")
     fun getProfile(@Header("Authorization") authHeader: String): Call<UserProfileResponse>
+    @GET("api/skipping-requests/getDocument")
+    fun getSkippingRequestDocuments(
+        @Header("Authorization") authHeader: String,
+        @Query("skippingRequestId") skippingRequestId: String
+    ): Call<ResponseBody>
+    @Multipart
+    @POST("api/skipping-requests/addDocument")
+    fun addSkippingRequestDocuments(
+        @Header("Authorization") authHeader: String,
+        @Part("request") requestId: RequestBody,
+        @Part files: List<MultipartBody.Part>
+    ): Call<ResponseBody>
+    @PUT("/api/skipping-requests/changeDate")
+    fun changeSkippingRequestDate(
+        @Header("Authorization") authHeader: String,
+        @Query("skippingRequestId") skippingRequestId: String,
+        @Query("newStartDate") newStartDate: String,
+        @Query("newEndDate") newEndDate: String
+    ): Call<ResponseBody>
 }
 

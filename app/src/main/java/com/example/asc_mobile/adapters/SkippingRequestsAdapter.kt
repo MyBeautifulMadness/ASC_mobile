@@ -10,9 +10,12 @@ import com.bumptech.glide.Glide
 import com.example.asc_mobile.R
 import com.example.asc_mobile.model.SkippingRequest
 import com.example.asc_mobile.model.Confirmation
+import com.example.asc_mobile.AbsencesActivity
 
-class SkippingRequestsAdapter(private var skippingRequests: List<SkippingRequest>) :
-    RecyclerView.Adapter<SkippingRequestsAdapter.ViewHolder>() {
+class SkippingRequestsAdapter(
+    private var skippingRequests: List<SkippingRequest>,
+    private val onItemClick: (SkippingRequest) -> Unit
+    ) : RecyclerView.Adapter<SkippingRequestsAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val studentName: TextView = view.findViewById(R.id.studentName)
@@ -21,6 +24,7 @@ class SkippingRequestsAdapter(private var skippingRequests: List<SkippingRequest
         val reason: TextView = view.findViewById(R.id.reason)
         val lessons: TextView = view.findViewById(R.id.lessons)
         val status: TextView = view.findViewById(R.id.status)
+        val confirmations: TextView = view.findViewById(R.id.confirmations)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -37,6 +41,16 @@ class SkippingRequestsAdapter(private var skippingRequests: List<SkippingRequest
         holder.reason.text = "Причина: ${request.reason}"
         holder.lessons.text = "Пары: ${request.lessons?.joinToString() ?: "Нет данных"}"
         holder.status.text = "Статус: ${request.status}"
+
+        val documentsText = request.confirmations?.takeIf { it.isNotEmpty() }
+            ?.joinToString(", ") { it.filename }
+            ?: "Нет"
+
+        holder.confirmations.text = "Подтверждающие документы: $documentsText"
+
+        holder.itemView.setOnClickListener {
+            onItemClick(request)
+        }
     }
 
     override fun getItemCount() = skippingRequests.size
